@@ -13,15 +13,9 @@ app.use(bodyParser.json());
 app.use(express.static(path.join(__dirname, 'client', 'build')));
 
 // some helper functions you can use
-async function readFile(filePath) {
-  return await fs.readFile(filePath, 'utf-8');
-}
-async function writeFile(filePath) {
-  return await fs.writeFile(filePath, 'utf-8');
-}
-async function readDir(dirPath) {
-  return await fs.readDir(dirPath);
-}
+// const readFile = util.promisify(fs.readFile);
+// const writeFile = util.promisify(fs.writeFile);
+// const readDir = util.promisify(fs.readdir);
 
 // some more helper functions
 const DATA_DIR = 'data';
@@ -37,9 +31,9 @@ function jsonError(res, message) {
   res.json({ status: 'error', message });
 }
 
-// app.get('/', (req, res) => {
-//   res.json({ wow: 'it works!' });
-// });
+app.get('/', (req, res) => {
+  res.json({ wow: 'it works!' });
+});
 
 
 
@@ -48,8 +42,25 @@ function jsonError(res, message) {
 // failure response: {status: 'error', message: 'Page does not exist.'}
 
 app.get('/api/page/:slug', async (req, res) => {
-  res.json({ status: 'ok', body: 'FIXME HERE GOES THE BODY TEXT' });
+  const filePath = path.join('data', `${req.params.slug}.md`);
+  try {
+    const text = await fs.readFile(filePath, 'utf-8');
+    res.json({ status: 'ok', body: text });
+  } catch (e){
+    res.json({ status: 'error', message: 'Page does not exist. Help expand the wiki by creating it!'});
+  }
 });
+
+
+
+
+// app.get('/api/page/home', async (req, res) => {
+//   res.json({ status: 'ok', body: 'home pagyyyte' });
+// });
+
+// app.get('/api/page/about', async (req, res) => {
+//   res.json({ status: 'ok', body: 'homeabout page' });
+// });
 
 
 // POST: '/api/page/:slug'
@@ -57,6 +68,17 @@ app.get('/api/page/:slug', async (req, res) => {
 // success response: {status: 'ok'}
 // failure response: {status: 'error', message: 'Could not write page.'}
 
+app.post('/api/page/:slug', async (req,res) => {
+  const filePath = path.join('data', `${req.params.slug}.md`);
+  const text = req.body.body;
+  try{
+    fs.writeFile(filePath, text);
+    res.json({ status: 'ok'});
+  } catch (e) {
+    res.json({ status: 'error', message: 'Could not write page. Please try again later.'})
+  }
+
+});
 // GET: '/api/pages/all'
 // success response: {status:'ok', pages: ['fileName', 'otherFileName']}
 //  file names do not have .md, just the name!
@@ -74,6 +96,7 @@ app.get('/api/page/:slug', async (req, res) => {
 
 // If you want to see the wiki client, run npm install && npm build in the client folder,
 // then comment the line above and uncomment out the lines below and comment the line above.
+
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, 'client', 'build', 'index.html'));
 });

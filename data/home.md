@@ -1,11 +1,5 @@
-# Welcome!
+# Elif's page
 
-This is your own wiki.
+Write whatever you like here. 
 
-This is how you change stuff!!
-
-Here's the [about](about) page.
-
-#home #default
-
-[new file](new-file)
+elif sancak

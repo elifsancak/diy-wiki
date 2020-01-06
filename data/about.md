@@ -1,5 +1,3 @@
-# About
+# Your New Page
 
-This is a wiki.
-
-#about #default
+Write whatever you like here.dfg
